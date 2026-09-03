@@ -18306,7 +18306,7 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
   if (window.__KMS_NO_VERSION_GATE_RELEASE_WATCHER_20260819__) return;
   window.__KMS_NO_VERSION_GATE_RELEASE_WATCHER_20260819__ = true;
 
-  var PAGE_RELEASE_VERSION = "6.0.0";
+  var PAGE_RELEASE_VERSION = ""; // ✅ อ่านจริงจาก Patch!A2
   var PAGE_MAIN_URL = "https://demokosin-cmd.github.io/kosin-borrow-app/";
   var ROUTER_MODE = String(window.__KMS_ROUTER_MODE__ || 'PUBLIC').toUpperCase();
 
@@ -18408,20 +18408,25 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
 
   function setReleaseDisplay_(){
     try{
-      var v = norm(PAGE_RELEASE_VERSION) || '-';
+      var v = norm(PAGE_RELEASE_VERSION);
+
+      // ✅ ยังไม่ได้รับ Patch!A2 -> ห้ามเอาค่า hard-code / "-" ไปทับหน้าเว็บ
+      if(!v) return;
+
       var versionDisplay = q('version-display');
       if(versionDisplay) versionDisplay.textContent = v;
 
       var latest = q('latest-version');
       if(latest) latest.textContent = v;
 
+      // appVersion เป็น cache ของค่าที่มาจาก Patch!A2 เท่านั้น
       try { localStorage.setItem('appVersion', v); } catch(e){}
 
       var status = q('status-message1');
       if(status){
         status.innerHTML =
           '<span style="color:#16a34a;font-weight:900;">🟢 ONLINE | เว็บไซต์ใช้งานได้ตามปกติ</span>' +
-          (v && v !== '-' ? '<span style="color:#94a3b8;font-weight:700;"> | Release ' + esc(v) + '</span>' : '');
+          '<span style="color:#94a3b8;font-weight:700;"> | Release ' + esc(v) + '</span>';
       }
     }catch(e){}
   }
@@ -18970,11 +18975,25 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
         // endpoint เดียวนี้ส่ง version/detail กลับมาแล้ว
         // ----------------------------------------------------
         var newVersion = norm(res.version);
+        var oldVersion = norm(PAGE_RELEASE_VERSION);
 
+        // ✅ Version หลัก = Patch!A2 จาก backend เท่านั้น
+        if(newVersion){
+          PAGE_RELEASE_VERSION = newVersion;
+          window.__KMS_PAGE_RELEASE_VERSION__ = newVersion;
+
+          try{
+            localStorage.setItem('appVersion', newVersion);
+          }catch(e){}
+
+          setReleaseDisplay_();
+        }
+
+        // ถ้า Patch!A2 เปลี่ยนระหว่างที่เปิดเว็บอยู่
         if(
           newVersion &&
-          norm(PAGE_RELEASE_VERSION) &&
-          newVersion !== norm(PAGE_RELEASE_VERSION)
+          oldVersion &&
+          newVersion !== oldVersion
         ){
           showReleaseUpdatePrompt_(res);
         }
@@ -21251,6 +21270,66 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
+<script id="kmsPatchA2VersionBootstrap20260903">
+(function(){
+  if(window.__KMS_PATCH_A2_VERSION_BOOTSTRAP__) return;
+  window.__KMS_PATCH_A2_VERSION_BOOTSTRAP__ = true;
+
+  function apply_(res){
+    if(!res || res.ok === false) return;
+
+    var v = String(res.version || '').trim();
+    if(!v) return;
+
+    window.__KMS_PAGE_RELEASE_VERSION__ = v;
+
+    try{
+      localStorage.setItem('appVersion', v);
+    }catch(e){}
+
+    var versionDisplay = document.getElementById('version-display');
+    if(versionDisplay) versionDisplay.textContent = v;
+
+    var latest = document.getElementById('latest-version');
+    if(latest) latest.textContent = v;
+
+    var status = document.getElementById('status-message1');
+    if(status){
+      status.innerHTML =
+        '<span style="color:#16a34a;font-weight:900;">🟢 ONLINE | เว็บไซต์ใช้งานได้ตามปกติ</span>' +
+        '<span style="color:#94a3b8;font-weight:700;"> | Release ' + v.replace(/[&<>"']/g,'') + '</span>';
+    }
+  }
+
+  function load_(){
+    if(
+      !window.google ||
+      !google.script ||
+      !google.script.run
+    ){
+      setTimeout(load_, 250);
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler(apply_)
+      .withFailureHandler(function(err){
+        console.warn('Patch!A2 version load failed', err);
+      })
+      .kmsGetPatchVersionOnly();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(load_, 80);
+    }, {once:true});
+  }else{
+    setTimeout(load_, 80);
+  }
+})();
+</script>
+
 </body>
 </html>
 <style id="kmsDisableLongTermExtendButtonFinal">
