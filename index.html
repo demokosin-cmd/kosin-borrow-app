@@ -2,270 +2,145 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1,
-                 maximum-scale=1,
-                 viewport-fit=cover">
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
   <title>ใบยืมสินค้าออนไลน์</title>
 
-  <!-- ==============================
-       iPhone / iPad Home Screen
-       ============================== -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ใบยืมสินค้าออนไลน์">
-
-  <!-- Android / PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#183A8F">
 
-  <!-- KOSIN Icons -->
-  <link rel="apple-touch-icon"
-        sizes="180x180"
-        href="./kosin-app-icon-180.png">
-
-  <link rel="apple-touch-icon-precomposed"
-        sizes="180x180"
-        href="./kosin-app-icon-180.png">
-
-  <link rel="icon"
-        type="image/png"
-        sizes="192x192"
-        href="./kosin-app-icon-192.png">
-
-  <link rel="icon"
-        type="image/png"
-        sizes="512x512"
-        href="./kosin-app-icon-512.png">
-
+  <link rel="apple-touch-icon" sizes="180x180" href="./kosin-app-icon-180.png">
+  <link rel="apple-touch-icon-precomposed" sizes="180x180" href="./kosin-app-icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./kosin-app-icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./kosin-app-icon-512.png">
   <link rel="manifest" href="./manifest.webmanifest">
 
   <style>
-    :root {
-      --kms-blue: #183A8F;
-      --kms-blue-2: #2563EB;
-      --kms-bg: #F6F8FC;
-      --kms-text: #172033;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      min-height: 100%;
-      overflow: hidden;
-      background: var(--kms-bg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                   Roboto, Arial, sans-serif;
-    }
-
-    #kms-shell {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-    }
-
-    #kms-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: #fff;
-      display: block;
-    }
-
-    #kms-loader {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding:
-        max(20px, env(safe-area-inset-top))
-        max(20px, env(safe-area-inset-right))
-        max(20px, env(safe-area-inset-bottom))
-        max(20px, env(safe-area-inset-left));
-      background:
-        radial-gradient(circle at top, rgba(37,99,235,.14), transparent 40%),
-        linear-gradient(180deg,#ffffff,#f3f7ff);
-      transition: opacity .25s ease, visibility .25s ease;
-    }
-
-    #kms-loader.hide {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .kms-card {
-      width: min(92vw, 390px);
-      padding: 28px 22px;
-      text-align: center;
-      background: rgba(255,255,255,.96);
-      border: 1px solid #E5EAF4;
-      border-radius: 28px;
-      box-shadow: 0 24px 70px rgba(15,23,42,.13);
-    }
-
-    .kms-logo {
-      width: 116px;
-      height: 116px;
-      object-fit: contain;
-      border-radius: 24px;
-      margin-bottom: 16px;
-    }
-
-    .kms-title {
-      color: var(--kms-blue);
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 7px;
-    }
-
-    .kms-sub {
-      color: #64748B;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 18px;
-    }
-
-    .kms-spinner {
-      width: 42px;
-      height: 42px;
-      margin: 0 auto 12px;
-      border-radius: 50%;
-      border: 4px solid #DCE7FF;
-      border-top-color: var(--kms-blue-2);
-      animation: kmsSpin .8s linear infinite;
-    }
-
-    @keyframes kmsSpin {
-      to { transform: rotate(360deg); }
-    }
-
-    .kms-open {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 10px 16px;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(135deg,var(--kms-blue),var(--kms-blue-2));
-      color: #fff;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 800;
-    }
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f4f7fb;color:#172033}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom))}
+    .card{width:min(92vw,430px);background:#fff;border:1px solid #e4eaf4;border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.14)}
+    .logo{width:116px;height:116px;object-fit:contain;border-radius:24px;margin-bottom:14px}
+    h1{margin:0 0 6px;color:#183A8F;font-size:22px}
+    p{margin:0;color:#64748b;font-size:14px;line-height:1.65}
+    .spinner{width:44px;height:44px;margin:18px auto 10px;border-radius:50%;border:4px solid #dbeafe;border-top-color:#2563eb;animation:s .75s linear infinite}
+    @keyframes s{to{transform:rotate(360deg)}}
+    .steps{margin-top:18px;text-align:left}
+    .step{display:flex;gap:10px;margin:9px 0;padding:11px 12px;border:1px solid #e2e8f0;border-radius:15px;background:#f8fafc;font-size:13px;line-height:1.55}
+    .num{width:28px;height:28px;min-width:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#dbeafe;color:#1d4ed8;font-weight:900}
+    .btn{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:15px;background:linear-gradient(135deg,#183A8F,#2563EB);color:#fff;font-weight:800;font-size:14px;cursor:pointer}
+    .secondary{background:#eef4ff;color:#183A8F}
+    .note{margin-top:13px;padding:10px 12px;border-radius:13px;background:#eff6ff;color:#1e40af;font-size:12.5px;line-height:1.55}
   </style>
 </head>
-
 <body>
-  <div id="kms-shell">
+  <div class="card">
+    <img class="logo" src="./kosin-app-icon-180.png" alt="KOSIN">
+    <h1>ใบยืมสินค้าออนไลน์</h1>
 
-    <div id="kms-loader">
-      <div class="kms-card">
-        <img
-          class="kms-logo"
-          src="./kosin-app-icon-180.png"
-          alt="KOSIN">
-
-        <div class="kms-title">ใบยืมสินค้าออนไลน์</div>
-        <div class="kms-sub">
-          กำลังเปิดระบบ KOSIN
-        </div>
-
-        <div class="kms-spinner"></div>
-
-        <a
-          id="kms-open-manual"
-          class="kms-open"
-          href="#"
-          target="_self"
-          style="display:none;">
-          เปิดระบบอีกครั้ง
-        </a>
-      </div>
+    <div id="normalMode">
+      <p>กำลังเข้าสู่ระบบ KOSIN</p>
+      <div class="spinner"></div>
+      <button class="btn" id="openNow" type="button">เปิดระบบตอนนี้</button>
     </div>
 
-    <iframe
-      id="kms-frame"
-      title="ใบยืมสินค้าออนไลน์"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allow="camera; microphone; clipboard-read; clipboard-write; fullscreen"
-    ></iframe>
+    <div id="installMode" style="display:none">
+      <p>ติดตั้งหน้า KOSIN นี้ลง Home Screen เพื่อให้ได้ไอคอนและโหมดแอปที่ถูกต้อง</p>
 
+      <div class="steps" id="iosSteps" style="display:none">
+        <div class="step"><div class="num">1</div><div><b>เปิดหน้านี้ด้วย Safari</b></div></div>
+        <div class="step"><div class="num">2</div><div><b>กด Share / แชร์</b></div></div>
+        <div class="step"><div class="num">3</div><div><b>Add to Home Screen</b></div></div>
+        <div class="step"><div class="num">4</div><div>เปิด <b>Open as Web App</b> แล้วกด <b>Add</b></div></div>
+      </div>
+
+      <div class="steps" id="androidSteps" style="display:none">
+        <div class="step"><div class="num">1</div><div>เปิดหน้านี้ด้วย <b>Chrome</b></div></div>
+        <div class="step"><div class="num">2</div><div>กด <b>ติดตั้งแอป</b> ด้านล่าง หรือเมนู ⋮ → Install app</div></div>
+      </div>
+
+      <button class="btn" id="installBtn" type="button" style="display:none">ติดตั้งแอป</button>
+      <button class="btn secondary" id="continueBtn" type="button">เข้าใช้งานโดยไม่ติดตั้ง</button>
+
+      <div class="note">
+        ลิงก์สำหรับแนะนำผู้ใช้ติดตั้งคือ<br>
+        <b>https://demokosin-cmd.github.io/kosin-borrow-app/</b>
+      </div>
+    </div>
   </div>
 
-  <script>
-    // ======================================================
-    // ใส่ URL Web App ของ Google Apps Script ตรงนี้
-    // ต้องเป็น URL ที่ลงท้าย /exec
-    // ======================================================
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec";
+<script>
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec";
 
-    const frame = document.getElementById("kms-frame");
-    const loader = document.getElementById("kms-loader");
-    const manualBtn = document.getElementById("kms-open-manual");
+const params = new URLSearchParams(location.search);
+const installMode = params.get("install") === "1";
 
-    function validGasUrl(url) {
-      return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/i
-        .test(String(url || "").trim());
-    }
+function isIOS(){
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && Number(navigator.maxTouchPoints || 0) > 1);
+}
 
-    function openGasApp() {
-      if (!validGasUrl(GAS_WEB_APP_URL)) {
-        loader.classList.remove("hide");
-        manualBtn.style.display = "inline-flex";
-        manualBtn.textContent = "ยังไม่ได้ใส่ GAS URL";
-        manualBtn.removeAttribute("href");
-        return;
-      }
+function isAndroid(){
+  return /Android/i.test(navigator.userAgent);
+}
 
-      manualBtn.href = GAS_WEB_APP_URL;
-      frame.src = GAS_WEB_APP_URL;
-    }
+function isStandalone(){
+  try{ if(navigator.standalone === true) return true; }catch(e){}
+  try{ if(matchMedia("(display-mode: standalone)").matches) return true; }catch(e){}
+  return params.get("app") === "1";
+}
 
-    frame.addEventListener("load", function () {
-      setTimeout(function () {
-        loader.classList.add("hide");
-      }, 250);
-    });
+function gasUrl(){
+  const app = isStandalone() ? "1" : "0";
+  return GAS_WEB_APP_URL +
+    "?kmsLauncher=1&kmsApp=" + app +
+    "&from=github&t=" + encodeURIComponent(Date.now());
+}
 
-    // ถ้าโหลดนานเกินไป แสดงปุ่ม fallback
-    setTimeout(function () {
-      if (!loader.classList.contains("hide") && validGasUrl(GAS_WEB_APP_URL)) {
-        manualBtn.style.display = "inline-flex";
-        manualBtn.href = GAS_WEB_APP_URL;
-        manualBtn.textContent = "เปิดระบบโดยตรง";
-      }
-    }, 8000);
+function goGas(){
+  location.replace(gasUrl());
+}
 
-    openGasApp();
+document.getElementById("openNow").addEventListener("click", goGas);
+document.getElementById("continueBtn").addEventListener("click", goGas);
 
-    // Service Worker ใช้กับ GitHub Pages เท่านั้น
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./service-worker.js")
-          .catch(function (err) {
-            console.log("Service Worker:", err);
-          });
-      });
-    }
-  </script>
+if(installMode){
+  document.getElementById("normalMode").style.display = "none";
+  document.getElementById("installMode").style.display = "block";
+
+  if(isIOS()) document.getElementById("iosSteps").style.display = "block";
+  if(isAndroid()) document.getElementById("androidSteps").style.display = "block";
+} else {
+  setTimeout(goGas, 350);
+}
+
+let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", function(e){
+  e.preventDefault();
+  deferredPrompt = e;
+
+  if(installMode){
+    const btn = document.getElementById("installBtn");
+    btn.style.display = "block";
+
+    btn.onclick = async function(){
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      btn.style.display = "none";
+    };
+  }
+});
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("./service-worker.js").catch(function(){});
+  });
+}
+</script>
 </body>
 </html>
-
