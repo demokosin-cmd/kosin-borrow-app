@@ -3,7 +3,7 @@
   "name": "ใบยืมสินค้าออนไลน์",
   "short_name": "ใบยืมสินค้า",
   "description": "ระบบใบยืมสินค้าออนไลน์ KOSIN Medical Supply Co.,Ltd.",
-  "start_url": "./?app=1",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FFFFFF",

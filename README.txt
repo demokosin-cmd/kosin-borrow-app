@@ -1,33 +1,44 @@
-KOSIN GitHub Router + Smooth Refresh
+KOSIN GitHub Frontend V2
 
-1) Google Apps Script
-- ใช้ Code_GAS_MODIFIED.gs.txt แทนโค้ด backend ปัจจุบัน
-- ใช้ LastestV6_MODIFIED.html แทน LastestV6
-- Deploy เป็น New version
+เป้าหมาย
+- GitHub Pages เป็น Frontend จริง
+- URL คงเป็น:
+  https://demokosin-cmd.github.io/kosin-borrow-app/
+- Apps Script เป็น Backend เท่านั้น
+- ถ้าเปิด Apps Script /exec โดยตรง จะไม่เห็นระบบ
+  และมีปุ่มบังคับให้กลับ GitHub ในหน้าเดิม
 
-2) GitHub repo kosin-borrow-app
-อัปโหลดทับ:
-- index.html
-- manifest.webmanifest
-- service-worker.js
-- kosin-app-icon-180.png
-- kosin-app-icon-192.png
-- kosin-app-icon-512.png
+ไฟล์ Google Apps Script
+1) Code.gs.txt
+   - เอาไปแทน Code.gs / รหัส.gs ปัจจุบัน
+   - Deploy เป็น New version
+   - LastestV6 เดิมใน GAS เก็บไว้ได้เพื่อ compatibility
+     แต่ผู้ใช้จะไม่เข้า frontend ผ่าน GAS แล้ว
 
-3) ลิงก์หลักที่แจกผู้ใช้
+ไฟล์ GitHub repo kosin-borrow-app
+1) index.html
+2) manifest.webmanifest
+3) service-worker.js
+4) kosin-app-icon-180.png
+5) kosin-app-icon-192.png
+6) kosin-app-icon-512.png
+
+LastestV6_GitHub.html
+- เป็น LastestV6 ที่แปลงเป็น GitHub frontend แล้ว
+- เนื้อหาเดียวกับ index.html
+- ให้ใช้ index.html เป็นไฟล์จริงบน GitHub
+
+Backend bridge
+- GitHub สร้าง hidden iframe ไป:
+  https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec?page=bridge
+- google.script.run เดิมใน LastestV6 ถูกจำลองด้วย bridge
+- จึงไม่ต้อง rewrite google.script.run ทีละจุด
+- RPC allowlist มี 31 ฟังก์ชัน
+
+หลังอัปโหลด GitHub ให้รอ Pages deploy สีเขียว
+แล้วเปิด:
 https://demokosin-cmd.github.io/kosin-borrow-app/
 
-4) หน้าติดตั้งโดยตรง
-https://demokosin-cmd.github.io/kosin-borrow-app/?install=1
-
-5) Routing
-- GAS /exec ตรง ๆ -> พยายามไป GitHub
-- GitHub -> GAS พร้อม kmsLauncher=1 เพื่อกัน loop
-- App ที่ติดตั้ง -> GitHub start_url ?app=1 -> GAS kmsApp=1
-- refreshPage:
-  * App มือถือ = overlay smooth + reload
-  * Desktop/browser = hard refresh แบบเดิม
-
-หมายเหตุ:
-Apps Script HtmlService มี sandbox ทำให้ automatic top redirect จาก GAS อาจถูก browser บล็อกได้
-จึงมีปุ่ม "เปิดแอป" เป็น fallback เสมอ
+สำคัญ:
+หลังเปลี่ยน Code.gs ต้อง Deploy New version ก่อน
+เพราะ GitHub frontend จะเรียก ?page=bridge จาก deployment ใหม่
