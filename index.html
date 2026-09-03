@@ -2,6 +2,60 @@
 <html>
 <head>
 
+<script id="kmsGithubMaintenanceAdminBootstrap20260903">
+(function(){
+  "use strict";
+
+  var token = "";
+
+  try {
+    var qs = new URLSearchParams(window.location.search || "");
+    token = String(
+      qs.get("kmsMaintenanceToken") ||
+      qs.get("adminToken") ||
+      ""
+    ).trim();
+
+    if (token) {
+      sessionStorage.setItem(
+        "KMS_MAINTENANCE_ADMIN_TOKEN",
+        token
+      );
+    } else {
+      token = String(
+        sessionStorage.getItem(
+          "KMS_MAINTENANCE_ADMIN_TOKEN"
+        ) || ""
+      ).trim();
+    }
+  } catch(e) {}
+
+  window.__KMS_MAINTENANCE_TOKEN__ = token;
+
+  if (token) {
+    window.__KMS_ROUTER_MODE__ = "ADMIN_TEST";
+    window.__KMS_USE_DATA_TEST__ = true;
+    window.__kmsDataMode = "DATA_TEST";
+    window.__KMS_ADMIN_TEST_FROM_PASSWORD__ = true;
+
+    // เก็บ token ใน sessionStorage แล้วลบ token ออกจาก address bar
+    // เพื่อไม่ให้ token ค้างโชว์ใน URL
+    try {
+      var cleanUrl =
+        "https://demokosin-cmd.github.io/kosin-borrow-app/" +
+        "?kmsAdmin=1";
+
+      history.replaceState(
+        null,
+        document.title,
+        cleanUrl
+      );
+    } catch(e) {}
+  }
+})();
+</script>
+
+
 
 <script id="kmsGithubGoogleScriptRunBridge">
 (function(){
@@ -8020,7 +8074,10 @@ function startTime1() {
     var dateFormatted = day + "/" + month + "/" + year;
     var timeFormatted = hours + ":" + minutes + ":" + seconds;
     // แสดงผลวันที่และเวลา
-    document.getElementById("time1").innerText = "วันที่และเวลาปัจจุบัน (Local Time) | (24h) : " + dateFormatted + " " + timeFormatted;
+    var time1El = document.getElementById("time1");
+    if (time1El) {
+        time1El.innerText = "วันที่และเวลาปัจจุบัน (Local Time) | (24h) : " + dateFormatted + " " + timeFormatted;
+    }
     // ตั้งเวลาให้ฟังก์ชัน startTime1 ถูกเรียกใหม่ทุกๆ 1 วินาที
     setTimeout(startTime1, 1000);
 }
@@ -8126,7 +8183,10 @@ function startTimeTH() {
     //let now_th = day + "/" + month + "/" + year;
     var timeFormatted = hours + ":" + minutes + ":" + seconds;
     // แสดงผลวันที่, เวลา, และ TimeZone
-    document.getElementById("time2").innerText = "วันที่และเวลาปัจจุบัน (Thailand) | UTC +07:00 (24h) : " + now_th;
+    var time2El = document.getElementById("time2");
+    if (time2El) {
+        time2El.innerText = "วันที่และเวลาปัจจุบัน (Thailand) | UTC +07:00 (24h) : " + now_th;
+    }
     // ตั้งเวลาให้ฟังก์ชัน startTimeTH ถูกเรียกใหม่ทุกๆ 1 วินาที
     setTimeout(startTimeTH, 1000);
 }
@@ -15066,7 +15126,16 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
       .getKmsLiveReleaseModeForClient({
         deviceId: deviceId,
         versionKey: versionKey,
-        routerMode: window.__KMS_ROUTER_MODE__ || ''
+        routerMode: window.__KMS_ROUTER_MODE__ || '',
+        maintenanceToken:
+          window.__KMS_MAINTENANCE_TOKEN__ ||
+          (function(){
+            try{
+              return sessionStorage.getItem('KMS_MAINTENANCE_ADMIN_TOKEN') || '';
+            }catch(e){
+              return '';
+            }
+          })()
       });
   }
 
@@ -18306,7 +18375,7 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
   if (window.__KMS_NO_VERSION_GATE_RELEASE_WATCHER_20260819__) return;
   window.__KMS_NO_VERSION_GATE_RELEASE_WATCHER_20260819__ = true;
 
-  var PAGE_RELEASE_VERSION = ""; // ✅ อ่านจริงจาก Patch!A2
+  var PAGE_RELEASE_VERSION = "6.0.0";
   var PAGE_MAIN_URL = "https://demokosin-cmd.github.io/kosin-borrow-app/";
   var ROUTER_MODE = String(window.__KMS_ROUTER_MODE__ || 'PUBLIC').toUpperCase();
 
@@ -18408,25 +18477,20 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
 
   function setReleaseDisplay_(){
     try{
-      var v = norm(PAGE_RELEASE_VERSION);
-
-      // ✅ ยังไม่ได้รับ Patch!A2 -> ห้ามเอาค่า hard-code / "-" ไปทับหน้าเว็บ
-      if(!v) return;
-
+      var v = norm(PAGE_RELEASE_VERSION) || '-';
       var versionDisplay = q('version-display');
       if(versionDisplay) versionDisplay.textContent = v;
 
       var latest = q('latest-version');
       if(latest) latest.textContent = v;
 
-      // appVersion เป็น cache ของค่าที่มาจาก Patch!A2 เท่านั้น
       try { localStorage.setItem('appVersion', v); } catch(e){}
 
       var status = q('status-message1');
       if(status){
         status.innerHTML =
           '<span style="color:#16a34a;font-weight:900;">🟢 ONLINE | เว็บไซต์ใช้งานได้ตามปกติ</span>' +
-          '<span style="color:#94a3b8;font-weight:700;"> | Release ' + esc(v) + '</span>';
+          (v && v !== '-' ? '<span style="color:#94a3b8;font-weight:700;"> | Release ' + esc(v) + '</span>' : '');
       }
     }catch(e){}
   }
@@ -18975,25 +19039,11 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
         // endpoint เดียวนี้ส่ง version/detail กลับมาแล้ว
         // ----------------------------------------------------
         var newVersion = norm(res.version);
-        var oldVersion = norm(PAGE_RELEASE_VERSION);
 
-        // ✅ Version หลัก = Patch!A2 จาก backend เท่านั้น
-        if(newVersion){
-          PAGE_RELEASE_VERSION = newVersion;
-          window.__KMS_PAGE_RELEASE_VERSION__ = newVersion;
-
-          try{
-            localStorage.setItem('appVersion', newVersion);
-          }catch(e){}
-
-          setReleaseDisplay_();
-        }
-
-        // ถ้า Patch!A2 เปลี่ยนระหว่างที่เปิดเว็บอยู่
         if(
           newVersion &&
-          oldVersion &&
-          newVersion !== oldVersion
+          norm(PAGE_RELEASE_VERSION) &&
+          newVersion !== norm(PAGE_RELEASE_VERSION)
         ){
           showReleaseUpdatePrompt_(res);
         }
@@ -19004,7 +19054,16 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
       .getKmsLiveReleaseModeForClient({
         deviceId: deviceId,
         versionKey: versionKey,
-        routerMode: window.__KMS_ROUTER_MODE__ || ''
+        routerMode: window.__KMS_ROUTER_MODE__ || '',
+        maintenanceToken:
+          window.__KMS_MAINTENANCE_TOKEN__ ||
+          (function(){
+            try{
+              return sessionStorage.getItem('KMS_MAINTENANCE_ADMIN_TOKEN') || '';
+            }catch(e){
+              return '';
+            }
+          })()
       });
   }
 
@@ -19560,13 +19619,7 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
           '</div>'+
         '</div>'+
       '</div>'+
-
-      '<div id="kmsLiveMaintAdminFrame" style="display:none;position:fixed;inset:0;background:#fff;z-index:999999;">'+
-        '<div id="kmsLiveMaintAdminLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fbff;color:#1d4ed8;font-family:Kanit,sans-serif;font-weight:900;z-index:2;">กำลังเข้าสู่เว็บไซต์สำหรับแอดมิน...</div>'+
-        '<iframe id="kmsLiveMaintAdminIframe" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;"></iframe>'+
-      '</div>';
-
-    function pad2_(n){ return String(n).padStart(2,'0'); }
+      '';function pad2_(n){ return String(n).padStart(2,'0'); }
 
     function renderCountdown_(){
       var out=q_('kmsLiveMaintCountdown');
@@ -19636,17 +19689,45 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
             return;
           }
 
-          if(st){st.style.color='#16a34a';st.textContent='ยืนยันสำเร็จ กำลังเข้าเว็บไซต์...';}
-
-          var shell=q_('kmsLiveMaintAdminFrame');
-          var frame=q_('kmsLiveMaintAdminIframe');
-          var loading=q_('kmsLiveMaintAdminLoading');
-
-          if(shell&&frame){
-            shell.style.display='block';
-            frame.onload=function(){if(loading)loading.style.display='none';};
-            frame.src=String(r.url||'');
+          if(st){
+            st.style.color='#16a34a';
+            st.textContent='ยืนยันสำเร็จ กำลังเข้าโหมด ADMIN TEST...';
           }
+
+          var token = String((r && r.token) || '').trim();
+
+          if(!token){
+            if(st){
+              st.style.color='#dc2626';
+              st.textContent='ไม่พบ Admin Token กรุณาลองใหม่';
+            }
+            return;
+          }
+
+          try{
+            sessionStorage.setItem(
+              'KMS_MAINTENANCE_ADMIN_TOKEN',
+              token
+            );
+          }catch(e){}
+
+          window.__KMS_MAINTENANCE_TOKEN__ = token;
+          window.__KMS_ROUTER_MODE__ = 'ADMIN_TEST';
+          window.__KMS_USE_DATA_TEST__ = true;
+          window.__kmsDataMode = 'DATA_TEST';
+
+          // ✅ GitHub เป็น frontend จริง:
+          // ห้ามเปิด GAS ใน iframe เพราะ doGet ของ GAS บล็อก frontend โดยตรง
+          // โหลดหน้า GitHub เดิมใหม่ในโหมด Admin Test
+          setTimeout(function(){
+            window.location.replace(
+              "https://demokosin-cmd.github.io/kosin-borrow-app/" +
+              '?kmsAdmin=1&kmsMaintenanceToken=' +
+              encodeURIComponent(token) +
+              '&_ts=' +
+              encodeURIComponent(Date.now())
+            );
+          }, 180);
         })
         .withFailureHandler(function(err){
           if(btn){btn.disabled=false;btn.textContent='เข้าใช้งาน';}
@@ -19663,6 +19744,9 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
           var latestMode = String(r.mode || '').toUpperCase();
 
           if(latestMode === 'PUBLIC'){
+            if(typeof window.kmsClearMaintenanceAdminSession_ === 'function'){
+              window.kmsClearMaintenanceAdminSession_();
+            }
             if(typeof window.kmsLoadPublicPageInPlace_ === 'function'){
               window.kmsLoadPublicPageInPlace_(r.mainUrl || PAGE_MAIN_URL);
             }else if(typeof window.kmsGoMainWebAppUrl_ === 'function'){
@@ -21271,63 +21355,15 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
-<script id="kmsPatchA2VersionBootstrap20260903">
-(function(){
-  if(window.__KMS_PATCH_A2_VERSION_BOOTSTRAP__) return;
-  window.__KMS_PATCH_A2_VERSION_BOOTSTRAP__ = true;
+<script id="kmsClearMaintenanceAdminTokenWhenPublic20260903">
+window.kmsClearMaintenanceAdminSession_ = function(){
+  try{
+    sessionStorage.removeItem('KMS_MAINTENANCE_ADMIN_TOKEN');
+  }catch(e){}
 
-  function apply_(res){
-    if(!res || res.ok === false) return;
-
-    var v = String(res.version || '').trim();
-    if(!v) return;
-
-    window.__KMS_PAGE_RELEASE_VERSION__ = v;
-
-    try{
-      localStorage.setItem('appVersion', v);
-    }catch(e){}
-
-    var versionDisplay = document.getElementById('version-display');
-    if(versionDisplay) versionDisplay.textContent = v;
-
-    var latest = document.getElementById('latest-version');
-    if(latest) latest.textContent = v;
-
-    var status = document.getElementById('status-message1');
-    if(status){
-      status.innerHTML =
-        '<span style="color:#16a34a;font-weight:900;">🟢 ONLINE | เว็บไซต์ใช้งานได้ตามปกติ</span>' +
-        '<span style="color:#94a3b8;font-weight:700;"> | Release ' + v.replace(/[&<>"']/g,'') + '</span>';
-    }
-  }
-
-  function load_(){
-    if(
-      !window.google ||
-      !google.script ||
-      !google.script.run
-    ){
-      setTimeout(load_, 250);
-      return;
-    }
-
-    google.script.run
-      .withSuccessHandler(apply_)
-      .withFailureHandler(function(err){
-        console.warn('Patch!A2 version load failed', err);
-      })
-      .kmsGetPatchVersionOnly();
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){
-      setTimeout(load_, 80);
-    }, {once:true});
-  }else{
-    setTimeout(load_, 80);
-  }
-})();
+  window.__KMS_MAINTENANCE_TOKEN__ = '';
+  window.__KMS_ADMIN_TEST_FROM_PASSWORD__ = false;
+};
 </script>
 
 </body>
