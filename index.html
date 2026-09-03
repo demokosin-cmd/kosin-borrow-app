@@ -2,124 +2,111 @@
 <html>
 <head>
 
+
 <script id="kmsGithubGoogleScriptRunBridge">
 (function(){
   "use strict";
 
-  var GAS_BRIDGE_URL = "https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec";
-  var bridgeFrame = null;
-  var bridgeReady = false;
-  var bridgeQueue = [];
+  var GAS_RPC_URL = "https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec";
   var rpcSeq = 0;
   var pending = Object.create(null);
 
-  var channel = (function(){
-    try {
-      if (
-        window.crypto &&
-        typeof window.crypto.randomUUID === "function"
-      ) {
-        return window.crypto.randomUUID();
-      }
-    } catch(e) {}
-
+  function makeId_() {
     return (
-      "kms-" +
+      "kmsrpc-" +
       Date.now() +
+      "-" +
+      (++rpcSeq) +
       "-" +
       Math.random().toString(36).slice(2)
     );
-  })();
-
-  function createBridgeFrame_() {
-    if (bridgeFrame) return bridgeFrame;
-
-    bridgeFrame =
-      document.createElement("iframe");
-
-    bridgeFrame.id =
-      "kms-gas-rpc-bridge";
-
-    bridgeFrame.title =
-      "KOSIN Backend Bridge";
-
-    bridgeFrame.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    bridgeFrame.style.cssText =
-      "position:fixed!important;" +
-      "width:1px!important;" +
-      "height:1px!important;" +
-      "left:-9999px!important;" +
-      "top:-9999px!important;" +
-      "border:0!important;" +
-      "opacity:0!important;" +
-      "pointer-events:none!important;";
-
-    bridgeFrame.src =
-      GAS_BRIDGE_URL +
-      "?page=bridge&ch=" +
-      encodeURIComponent(channel) +
-      "&t=" +
-      encodeURIComponent(Date.now());
-
-    (
-      document.body ||
-      document.documentElement
-    ).appendChild(bridgeFrame);
-
-    return bridgeFrame;
   }
 
-  function post_(payload) {
-    payload = payload || {};
-    payload.ch = channel;
+  function safeCloneArg_(value) {
+    if (value === undefined) return null;
+    if (value === null) return null;
 
-    if (
-      !bridgeReady ||
-      !bridgeFrame ||
-      !bridgeFrame.contentWindow
-    ) {
-      bridgeQueue.push(payload);
-      createBridgeFrame_();
-      return;
+    // google.script.run ปกติรับ Date ไม่ได้โดยตรง
+    // แต่ถ้ามี Date ในโค้ดเดิม ให้แปลงเป็น ISO string เพื่อไม่ให้ JSON พัง
+    if (value instanceof Date) {
+      return value.toISOString();
     }
+
+    // DOM Form / HTMLElement ไม่สามารถ JSON.stringify ได้
+    // กรณีโค้ดเดิมส่ง object ธรรมดา จะผ่านตามปกติ
+    if (
+      typeof Element !== "undefined" &&
+      value instanceof Element
+    ) {
+      var out = {};
+
+      if (
+        value.tagName &&
+        String(value.tagName).toLowerCase() === "form"
+      ) {
+        var fd = new FormData(value);
+
+        fd.forEach(function(v, k) {
+          // File จะไม่ส่งผ่าน RPC JSON ตัวนี้
+          // ระบบเดิมของหน้านี้ใช้ข้อมูลไฟล์แบบ base64 ก่อนส่งอยู่แล้ว
+          if (
+            typeof File !== "undefined" &&
+            v instanceof File
+          ) {
+            return;
+          }
+
+          if (Object.prototype.hasOwnProperty.call(out, k)) {
+            if (!Array.isArray(out[k])) {
+              out[k] = [out[k]];
+            }
+            out[k].push(v);
+          } else {
+            out[k] = v;
+          }
+        });
+
+        return out;
+      }
+
+      return null;
+    }
+
+    return value;
+  }
+
+  function encodeArgs_(argsLike) {
+    var args =
+      Array.prototype.slice.call(
+        argsLike || []
+      );
+
+    return JSON.stringify(
+      args.map(safeCloneArg_)
+    );
+  }
+
+  function cleanup_(id) {
+    var job = pending[id];
+    if (!job) return;
 
     try {
-      bridgeFrame.contentWindow.postMessage(
-        payload,
-        "*"
-      );
-    } catch (err) {
-      bridgeQueue.push(payload);
-    }
-  }
-
-  function flush_() {
-    if (
-      !bridgeReady ||
-      !bridgeFrame ||
-      !bridgeFrame.contentWindow
-    ) return;
-
-    var list =
-      bridgeQueue.splice(
-        0,
-        bridgeQueue.length
-      );
-
-    list.forEach(function(payload) {
-      try {
-        bridgeFrame.contentWindow.postMessage(
-          payload,
-          "*"
-        );
-      } catch (err) {
-        bridgeQueue.push(payload);
+      if (job.form && job.form.parentNode) {
+        job.form.parentNode.removeChild(job.form);
       }
-    });
+    } catch(e) {}
+
+    try {
+      if (job.iframe && job.iframe.parentNode) {
+        job.iframe.parentNode.removeChild(job.iframe);
+      }
+    } catch(e) {}
+
+    if (job.timer) {
+      clearTimeout(job.timer);
+    }
+
+    delete pending[id];
   }
 
   window.addEventListener(
@@ -127,59 +114,43 @@
     function(event) {
       var data = event.data || {};
 
-      // ต้องมาจาก bridge iframe ของเราเท่านั้น
       if (
-        bridgeFrame &&
-        bridgeFrame.contentWindow &&
-        event.source !== bridgeFrame.contentWindow
+        data.kmsRpcPostResult !== true ||
+        !data.id
       ) {
         return;
       }
 
-      // Random channel prevents unrelated postMessage traffic
-      if (data.ch !== channel) return;
-
-      if (data.kmsBridgeReady === true) {
-        bridgeReady = true;
-        window.__KMS_GAS_BRIDGE_READY__ = true;
-        flush_();
-        return;
-      }
-
-      if (data.kmsRpcResult !== true) return;
-
       var job = pending[data.id];
       if (!job) return;
 
-      delete pending[data.id];
+      var success = job.success;
+      var failure = job.failure;
+      var userObject = job.userObject;
+
+      cleanup_(data.id);
 
       if (data.ok === true) {
-        if (
-          typeof job.success === "function"
-        ) {
+        if (typeof success === "function") {
           try {
-            job.success(
+            success(
               data.result,
-              job.userObject
+              userObject
             );
-          } catch (callbackErr) {
+          } catch(callbackErr) {
             setTimeout(function(){
               throw callbackErr;
             }, 0);
           }
         }
-
         return;
       }
 
-      var errData =
-        data.error || {};
-
-      var err =
-        new Error(
-          errData.message ||
-          "Google Apps Script backend error"
-        );
+      var errData = data.error || {};
+      var err = new Error(
+        errData.message ||
+        "Google Apps Script backend error"
+      );
 
       if (errData.name) {
         err.name = errData.name;
@@ -189,38 +160,65 @@
         err.stack = errData.stack;
       }
 
-      if (
-        typeof job.failure === "function"
-      ) {
+      if (typeof failure === "function") {
         try {
-          job.failure(
+          failure(
             err,
-            job.userObject
+            userObject
           );
-        } catch (callbackErr2) {
+        } catch(callbackErr2) {
           setTimeout(function(){
             throw callbackErr2;
           }, 0);
         }
       } else {
-        console.error(
-          "KOSIN RPC:",
-          err
-        );
+        console.error("KOSIN RPC:", err);
       }
     }
   );
 
-  function invoke_(
-    method,
-    args,
-    state
-  ) {
-    var id =
-      "rpc-" +
-      Date.now() +
-      "-" +
-      (++rpcSeq);
+  function invoke_(method, argsLike, state) {
+    var id = makeId_();
+
+    var iframe =
+      document.createElement("iframe");
+
+    iframe.name = id;
+    iframe.id = id;
+    iframe.style.cssText =
+      "position:fixed!important;" +
+      "width:1px!important;" +
+      "height:1px!important;" +
+      "left:-9999px!important;" +
+      "top:-9999px!important;" +
+      "border:0!important;" +
+      "opacity:0!important;" +
+      "pointer-events:none!important;";
+
+    var form =
+      document.createElement("form");
+
+    form.method = "POST";
+    form.action = GAS_RPC_URL;
+    form.target = id;
+    form.style.display = "none";
+
+    function add_(name, value) {
+      var input =
+        document.createElement("input");
+
+      input.type = "hidden";
+      input.name = name;
+      input.value = String(value == null ? "" : value);
+
+      form.appendChild(input);
+    }
+
+    add_("kmsRpc", "1");
+    add_("id", id);
+    add_("method", String(method || ""));
+    add_("args", encodeArgs_(argsLike));
+    add_("from", "github");
 
     pending[id] = {
       success:
@@ -230,18 +228,46 @@
         state.failure || null,
 
       userObject:
-        state.userObject
+        state.userObject,
+
+      iframe: iframe,
+      form: form,
+      timer: null
     };
 
-    post_({
-      kmsRpc: true,
-      id: id,
-      method: String(method || ""),
-      args:
-        Array.prototype.slice.call(
-          args || []
-        )
-    });
+    pending[id].timer =
+      setTimeout(function() {
+        var job = pending[id];
+        if (!job) return;
+
+        var failure = job.failure;
+        var userObject = job.userObject;
+
+        cleanup_(id);
+
+        var err =
+          new Error(
+            "เชื่อมต่อ Google Apps Script นานเกินไป กรุณาลองรีเฟรชอีกครั้ง"
+          );
+
+        if (typeof failure === "function") {
+          failure(err, userObject);
+        } else {
+          console.error("KOSIN RPC timeout:", err);
+        }
+      }, 30000);
+
+    (
+      document.body ||
+      document.documentElement
+    ).appendChild(iframe);
+
+    (
+      document.body ||
+      document.documentElement
+    ).appendChild(form);
+
+    form.submit();
 
     return undefined;
   }
@@ -249,48 +275,31 @@
   function makeRunner_(state) {
     state = state || {};
 
-    var base =
-      function(){};
-
     return new Proxy(
-      base,
+      function(){},
       {
-        get: function(
-          target,
-          prop
-        ) {
-          if (
-            prop ===
-            "withSuccessHandler"
-          ) {
+        get: function(target, prop) {
+          if (prop === "withSuccessHandler") {
             return function(fn) {
               return makeRunner_({
                 success: fn,
                 failure: state.failure,
-                userObject:
-                  state.userObject
+                userObject: state.userObject
               });
             };
           }
 
-          if (
-            prop ===
-            "withFailureHandler"
-          ) {
+          if (prop === "withFailureHandler") {
             return function(fn) {
               return makeRunner_({
                 success: state.success,
                 failure: fn,
-                userObject:
-                  state.userObject
+                userObject: state.userObject
               });
             };
           }
 
-          if (
-            prop ===
-            "withUserObject"
-          ) {
+          if (prop === "withUserObject") {
             return function(obj) {
               return makeRunner_({
                 success: state.success,
@@ -328,33 +337,17 @@
     {
       configurable: true,
       enumerable: true,
-
       get: function() {
         return makeRunner_({});
       }
     }
   );
 
-  window.__KMS_GAS_BACKEND_URL__ =
-    GAS_BRIDGE_URL;
-
-  window.__KMS_GITHUB_FRONTEND__ =
-    true;
-
-  if (
-    document.readyState ===
-    "loading"
-  ) {
-    document.addEventListener(
-      "DOMContentLoaded",
-      createBridgeFrame_,
-      { once: true }
-    );
-  } else {
-    createBridgeFrame_();
-  }
+  window.__KMS_GITHUB_FRONTEND__ = true;
+  window.__KMS_GAS_BACKEND_URL__ = GAS_RPC_URL;
 })();
 </script>
+
 
   <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
