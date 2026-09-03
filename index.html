@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 viewport-fit=cover">
+
+  <title>ใบยืมสินค้าออนไลน์</title>
+
+  <!-- ==============================
+       iPhone / iPad Home Screen
+       ============================== -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ใบยืมสินค้าออนไลน์">
+
+  <!-- Android / PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#183A8F">
+
+  <!-- KOSIN Icons -->
+  <link rel="apple-touch-icon"
+        sizes="180x180"
+        href="./kosin-app-icon-180.png">
+
+  <link rel="apple-touch-icon-precomposed"
+        sizes="180x180"
+        href="./kosin-app-icon-180.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="./kosin-app-icon-192.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="512x512"
+        href="./kosin-app-icon-512.png">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+
+  <style>
+    :root {
+      --kms-blue: #183A8F;
+      --kms-blue-2: #2563EB;
+      --kms-bg: #F6F8FC;
+      --kms-text: #172033;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      overflow: hidden;
+      background: var(--kms-bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, Arial, sans-serif;
+    }
+
+    #kms-shell {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+    }
+
+    #kms-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+      display: block;
+    }
+
+    #kms-loader {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(20px, env(safe-area-inset-top))
+        max(20px, env(safe-area-inset-right))
+        max(20px, env(safe-area-inset-bottom))
+        max(20px, env(safe-area-inset-left));
+      background:
+        radial-gradient(circle at top, rgba(37,99,235,.14), transparent 40%),
+        linear-gradient(180deg,#ffffff,#f3f7ff);
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+
+    #kms-loader.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .kms-card {
+      width: min(92vw, 390px);
+      padding: 28px 22px;
+      text-align: center;
+      background: rgba(255,255,255,.96);
+      border: 1px solid #E5EAF4;
+      border-radius: 28px;
+      box-shadow: 0 24px 70px rgba(15,23,42,.13);
+    }
+
+    .kms-logo {
+      width: 116px;
+      height: 116px;
+      object-fit: contain;
+      border-radius: 24px;
+      margin-bottom: 16px;
+    }
+
+    .kms-title {
+      color: var(--kms-blue);
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .kms-sub {
+      color: #64748B;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .kms-spinner {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      border: 4px solid #DCE7FF;
+      border-top-color: var(--kms-blue-2);
+      animation: kmsSpin .8s linear infinite;
+    }
+
+    @keyframes kmsSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .kms-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg,var(--kms-blue),var(--kms-blue-2));
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="kms-shell">
+
+    <div id="kms-loader">
+      <div class="kms-card">
+        <img
+          class="kms-logo"
+          src="./kosin-app-icon-180.png"
+          alt="KOSIN">
+
+        <div class="kms-title">ใบยืมสินค้าออนไลน์</div>
+        <div class="kms-sub">
+          กำลังเปิดระบบ KOSIN
+        </div>
+
+        <div class="kms-spinner"></div>
+
+        <a
+          id="kms-open-manual"
+          class="kms-open"
+          href="#"
+          target="_self"
+          style="display:none;">
+          เปิดระบบอีกครั้ง
+        </a>
+      </div>
+    </div>
+
+    <iframe
+      id="kms-frame"
+      title="ใบยืมสินค้าออนไลน์"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="camera; microphone; clipboard-read; clipboard-write; fullscreen"
+    ></iframe>
+
+  </div>
+
+  <script>
+    // ======================================================
+    // ใส่ URL Web App ของ Google Apps Script ตรงนี้
+    // ต้องเป็น URL ที่ลงท้าย /exec
+    // ======================================================
+    const GAS_WEB_APP_URL =
+      "PASTE_YOUR_GAS_WEB_APP_URL_HERE";
+
+    const frame = document.getElementById("kms-frame");
+    const loader = document.getElementById("kms-loader");
+    const manualBtn = document.getElementById("kms-open-manual");
+
+    function validGasUrl(url) {
+      return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/i
+        .test(String(url || "").trim());
+    }
+
+    function openGasApp() {
+      if (!validGasUrl(GAS_WEB_APP_URL)) {
+        loader.classList.remove("hide");
+        manualBtn.style.display = "inline-flex";
+        manualBtn.textContent = "ยังไม่ได้ใส่ GAS URL";
+        manualBtn.removeAttribute("href");
+        return;
+      }
+
+      manualBtn.href = GAS_WEB_APP_URL;
+      frame.src = GAS_WEB_APP_URL;
+    }
+
+    frame.addEventListener("load", function () {
+      setTimeout(function () {
+        loader.classList.add("hide");
+      }, 250);
+    });
+
+    // ถ้าโหลดนานเกินไป แสดงปุ่ม fallback
+    setTimeout(function () {
+      if (!loader.classList.contains("hide") && validGasUrl(GAS_WEB_APP_URL)) {
+        manualBtn.style.display = "inline-flex";
+        manualBtn.href = GAS_WEB_APP_URL;
+        manualBtn.textContent = "เปิดระบบโดยตรง";
+      }
+    }, 8000);
+
+    openGasApp();
+
+    // Service Worker ใช้กับ GitHub Pages เท่านั้น
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(function (err) {
+            console.log("Service Worker:", err);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
