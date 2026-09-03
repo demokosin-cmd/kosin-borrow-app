@@ -127,6 +127,15 @@
     function(event) {
       var data = event.data || {};
 
+      // ต้องมาจาก bridge iframe ของเราเท่านั้น
+      if (
+        bridgeFrame &&
+        bridgeFrame.contentWindow &&
+        event.source !== bridgeFrame.contentWindow
+      ) {
+        return;
+      }
+
       // Random channel prevents unrelated postMessage traffic
       if (data.ch !== channel) return;
 
@@ -9094,15 +9103,6 @@ function refreshPage() {
     HOME_URL +
     "?refresh=" +
     encodeURIComponent(Date.now())
-  );
-
-  return false;
-}
-
-  // ✅ คอม / Browser ปกติ -> ใช้พฤติกรรมเดิม (reload ทั้งหน้า)
-  window.open(
-    GAS_URL + "?kmsLauncher=1&refresh=" + encodeURIComponent(Date.now()),
-    "_top"
   );
 
   return false;
