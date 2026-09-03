@@ -2,145 +2,459 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 viewport-fit=cover">
+
   <title>ใบยืมสินค้าออนไลน์</title>
 
+  <!-- iPhone / iPad -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ใบยืมสินค้าออนไลน์">
+
+  <!-- Android / PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#183A8F">
 
-  <link rel="apple-touch-icon" sizes="180x180" href="./kosin-app-icon-180.png">
-  <link rel="apple-touch-icon-precomposed" sizes="180x180" href="./kosin-app-icon-180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="./kosin-app-icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="./kosin-app-icon-512.png">
-  <link rel="manifest" href="./manifest.webmanifest">
+  <!-- ICON -->
+  <link rel="apple-touch-icon"
+        sizes="180x180"
+        href="./kosin-app-icon-180.png">
+
+  <link rel="apple-touch-icon-precomposed"
+        sizes="180x180"
+        href="./kosin-app-icon-180.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="./kosin-app-icon-192.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="512x512"
+        href="./kosin-app-icon-512.png">
+
+  <link rel="manifest"
+        href="./manifest.webmanifest">
+
 
   <style>
-    *{box-sizing:border-box}
-    html,body{margin:0;width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f4f7fb;color:#172033}
-    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom))}
-    .card{width:min(92vw,430px);background:#fff;border:1px solid #e4eaf4;border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.14)}
-    .logo{width:116px;height:116px;object-fit:contain;border-radius:24px;margin-bottom:14px}
-    h1{margin:0 0 6px;color:#183A8F;font-size:22px}
-    p{margin:0;color:#64748b;font-size:14px;line-height:1.65}
-    .spinner{width:44px;height:44px;margin:18px auto 10px;border-radius:50%;border:4px solid #dbeafe;border-top-color:#2563eb;animation:s .75s linear infinite}
-    @keyframes s{to{transform:rotate(360deg)}}
-    .steps{margin-top:18px;text-align:left}
-    .step{display:flex;gap:10px;margin:9px 0;padding:11px 12px;border:1px solid #e2e8f0;border-radius:15px;background:#f8fafc;font-size:13px;line-height:1.55}
-    .num{width:28px;height:28px;min-width:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#dbeafe;color:#1d4ed8;font-weight:900}
-    .btn{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:15px;background:linear-gradient(135deg,#183A8F,#2563EB);color:#fff;font-weight:800;font-size:14px;cursor:pointer}
-    .secondary{background:#eef4ff;color:#183A8F}
-    .note{margin-top:13px;padding:10px 12px;border-radius:13px;background:#eff6ff;color:#1e40af;font-size:12.5px;line-height:1.55}
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at top,
+          rgba(37, 99, 235, .12),
+          transparent 40%
+        ),
+        linear-gradient(
+          160deg,
+          #ffffff 0%,
+          #eef4ff 100%
+        );
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    }
+
+
+    /* ===============================
+       หน้าหลัก
+       =============================== */
+
+    .loader-screen {
+
+      position: fixed;
+      inset: 0;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 18px;
+
+      padding:
+        max(20px, env(safe-area-inset-top))
+        max(20px, env(safe-area-inset-right))
+        max(20px, env(safe-area-inset-bottom))
+        max(20px, env(safe-area-inset-left));
+
+    }
+
+
+    /* ===============================
+       วงโหลด
+       =============================== */
+
+    .loader {
+
+      width: 62px;
+      height: 62px;
+
+      border-radius: 50%;
+
+      border-top:
+        5px solid #FF6B35;
+
+      border-bottom:
+        5px solid #2563EB;
+
+      border-left:
+        5px solid transparent;
+
+      border-right:
+        5px solid transparent;
+
+      animation:
+        rotation 1s linear infinite;
+
+      filter:
+        drop-shadow(
+          0 8px 18px
+          rgba(37, 99, 235, .22)
+        );
+
+    }
+
+
+    @keyframes rotation {
+
+      to {
+        transform:
+          rotate(360deg);
+      }
+
+    }
+
+
+    /* ===============================
+       ข้อความ Loader
+       =============================== */
+
+    .loading-message {
+
+      padding:
+        12px 18px;
+
+      border-radius:
+        999px;
+
+      background:
+        rgba(255, 255, 255, .92);
+
+      box-shadow:
+        0 6px 18px
+        rgba(15, 23, 42, .08);
+
+      color:
+        #183A8F;
+
+      font-size:
+        clamp(
+          16px,
+          4vw,
+          21px
+        );
+
+      font-weight:
+        800;
+
+      text-align:
+        center;
+
+      line-height:
+        1.4;
+
+    }
+
+
+    /* ===============================
+       ลิงก์ด้านล่าง
+       =============================== */
+
+    .open-area {
+
+      margin-top:
+        8px;
+
+      text-align:
+        center;
+
+      opacity:
+        0;
+
+      transform:
+        translateY(8px);
+
+      transition:
+        opacity .35s ease,
+        transform .35s ease;
+
+      pointer-events:
+        none;
+
+    }
+
+
+    .open-area.show {
+
+      opacity:
+        1;
+
+      transform:
+        translateY(0);
+
+      pointer-events:
+        auto;
+
+    }
+
+
+    .open-text {
+
+      color:
+        #64748B;
+
+      font-size:
+        13px;
+
+      font-weight:
+        600;
+
+      margin-bottom:
+        8px;
+
+    }
+
+
+    .open-link {
+
+      display:
+        inline-flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      gap:
+        6px;
+
+      min-height:
+        44px;
+
+      padding:
+        10px 18px;
+
+      border-radius:
+        14px;
+
+      background:
+        #FFFFFF;
+
+      border:
+        1px solid
+        #DCE6F7;
+
+      box-shadow:
+        0 8px 24px
+        rgba(15, 23, 42, .08);
+
+      color:
+        #183A8F;
+
+      font-size:
+        14px;
+
+      font-weight:
+        800;
+
+      text-decoration:
+        none;
+
+      transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+
+    }
+
+
+    .open-link:active {
+
+      transform:
+        scale(.96);
+
+    }
+
+
+    /* ===============================
+       MOBILE
+       =============================== */
+
+    @media (max-width: 600px) {
+
+      .loader {
+
+        width:
+          58px;
+
+        height:
+          58px;
+
+      }
+
+
+      .loading-message {
+
+        max-width:
+          90vw;
+
+        font-size:
+          17px;
+
+      }
+
+
+      .open-link {
+
+        min-height:
+          48px;
+
+        padding:
+          11px 18px;
+
+      }
+
+    }
+
   </style>
+
 </head>
+
+
 <body>
-  <div class="card">
-    <img class="logo" src="./kosin-app-icon-180.png" alt="KOSIN">
-    <h1>ใบยืมสินค้าออนไลน์</h1>
 
-    <div id="normalMode">
-      <p>กำลังเข้าสู่ระบบ KOSIN</p>
-      <div class="spinner"></div>
-      <button class="btn" id="openNow" type="button">เปิดระบบตอนนี้</button>
+
+  <div class="loader-screen">
+
+
+    <!-- Loader -->
+    <div
+      class="loader">
     </div>
 
-    <div id="installMode" style="display:none">
-      <p>ติดตั้งหน้า KOSIN นี้ลง Home Screen เพื่อให้ได้ไอคอนและโหมดแอปที่ถูกต้อง</p>
 
-      <div class="steps" id="iosSteps" style="display:none">
-        <div class="step"><div class="num">1</div><div><b>เปิดหน้านี้ด้วย Safari</b></div></div>
-        <div class="step"><div class="num">2</div><div><b>กด Share / แชร์</b></div></div>
-        <div class="step"><div class="num">3</div><div><b>Add to Home Screen</b></div></div>
-        <div class="step"><div class="num">4</div><div>เปิด <b>Open as Web App</b> แล้วกด <b>Add</b></div></div>
-      </div>
+    <!-- ข้อความ -->
+    <div
+      class="loading-message">
 
-      <div class="steps" id="androidSteps" style="display:none">
-        <div class="step"><div class="num">1</div><div>เปิดหน้านี้ด้วย <b>Chrome</b></div></div>
-        <div class="step"><div class="num">2</div><div>กด <b>ติดตั้งแอป</b> ด้านล่าง หรือเมนู ⋮ → Install app</div></div>
-      </div>
+      กำลังเข้าสู่เว็บไซต์ใบยืมออนไลน์..
 
-      <button class="btn" id="installBtn" type="button" style="display:none">ติดตั้งแอป</button>
-      <button class="btn secondary" id="continueBtn" type="button">เข้าใช้งานโดยไม่ติดตั้ง</button>
-
-      <div class="note">
-        ลิงก์สำหรับแนะนำผู้ใช้ติดตั้งคือ<br>
-        <b>https://demokosin-cmd.github.io/kosin-borrow-app/</b>
-      </div>
     </div>
+
+
+    <!-- ==========================================
+         หลังโหลดเสร็จค่อยขึ้นลิงก์
+         ========================================== -->
+
+    <div
+      id="openArea"
+      class="open-area">
+
+
+      <div
+        class="open-text">
+
+        โปรดคลิกที่ลิงก์ด้านล่างเพื่อเข้าสู่ระบบ
+
+      </div>
+
+
+      <a
+        id="openSystemLink"
+        class="open-link"
+
+        href="https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec?kmsLauncher=1"
+
+        target="_blank"
+
+        rel="noopener">
+
+        เปิดเว็บไซต์ใบยืมออนไลน์
+        <span>›</span>
+
+      </a>
+
+
+    </div>
+
+
   </div>
 
-<script>
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec";
 
-const params = new URLSearchParams(location.search);
-const installMode = params.get("install") === "1";
 
-function isIOS(){
-  return /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && Number(navigator.maxTouchPoints || 0) > 1);
-}
+  <script>
 
-function isAndroid(){
-  return /Android/i.test(navigator.userAgent);
-}
+    /*
+     * =============================================
+     * สำคัญ
+     * GitHub จะไม่ Redirect ไป GAS อัตโนมัติ
+     * URL github.io จึงอยู่เหมือนเดิม
+     * =============================================
+     */
 
-function isStandalone(){
-  try{ if(navigator.standalone === true) return true; }catch(e){}
-  try{ if(matchMedia("(display-mode: standalone)").matches) return true; }catch(e){}
-  return params.get("app") === "1";
-}
 
-function gasUrl(){
-  const app = isStandalone() ? "1" : "0";
-  return GAS_WEB_APP_URL +
-    "?kmsLauncher=1&kmsApp=" + app +
-    "&from=github&t=" + encodeURIComponent(Date.now());
-}
+    const openArea =
+      document.getElementById(
+        "openArea"
+      );
 
-function goGas(){
-  location.replace(gasUrl());
-}
 
-document.getElementById("openNow").addEventListener("click", goGas);
-document.getElementById("continueBtn").addEventListener("click", goGas);
+    /*
+     * แสดงข้อความให้กดลิงก์
+     * หลังประมาณ 1 วินาที
+     */
 
-if(installMode){
-  document.getElementById("normalMode").style.display = "none";
-  document.getElementById("installMode").style.display = "block";
+    setTimeout(
+      function() {
 
-  if(isIOS()) document.getElementById("iosSteps").style.display = "block";
-  if(isAndroid()) document.getElementById("androidSteps").style.display = "block";
-} else {
-  setTimeout(goGas, 350);
-}
+        openArea.classList.add(
+          "show"
+        );
 
-let deferredPrompt = null;
+      },
+      1000
+    );
 
-window.addEventListener("beforeinstallprompt", function(e){
-  e.preventDefault();
-  deferredPrompt = e;
 
-  if(installMode){
-    const btn = document.getElementById("installBtn");
-    btn.style.display = "block";
+  </script>
 
-    btn.onclick = async function(){
-      if(!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      btn.style.display = "none";
-    };
-  }
-});
 
-if("serviceWorker" in navigator){
-  window.addEventListener("load", function(){
-    navigator.serviceWorker.register("./service-worker.js").catch(function(){});
-  });
-}
-</script>
 </body>
 </html>
