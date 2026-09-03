@@ -1,4 +1,4 @@
-const CACHE_NAME = "kosin-launcher-v1";
+const CACHE_NAME = "kosin-launcher-v2";
 
 const APP_SHELL = [
   "./",
