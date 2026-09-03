@@ -11,16 +11,13 @@
 
   <title>ใบยืมสินค้าออนไลน์</title>
 
-  <!-- iPhone / iPad -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ใบยืมสินค้าออนไลน์">
 
-  <!-- Android / PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#183A8F">
 
-  <!-- ICON -->
   <link rel="apple-touch-icon"
         sizes="180x180"
         href="./kosin-app-icon-180.png">
@@ -42,9 +39,7 @@
   <link rel="manifest"
         href="./manifest.webmanifest">
 
-
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -62,7 +57,7 @@
       background:
         radial-gradient(
           circle at top,
-          rgba(37, 99, 235, .12),
+          rgba(37,99,235,.12),
           transparent 40%
         ),
         linear-gradient(
@@ -79,18 +74,11 @@
         sans-serif;
     }
 
-
-    /* ===============================
-       หน้าหลัก
-       =============================== */
-
     .loader-screen {
-
       position: fixed;
       inset: 0;
 
       display: flex;
-
       flex-direction: column;
 
       align-items: center;
@@ -103,358 +91,121 @@
         max(20px, env(safe-area-inset-right))
         max(20px, env(safe-area-inset-bottom))
         max(20px, env(safe-area-inset-left));
-
     }
 
-
-    /* ===============================
-       วงโหลด
-       =============================== */
-
     .loader {
-
       width: 62px;
       height: 62px;
 
       border-radius: 50%;
 
-      border-top:
-        5px solid #FF6B35;
+      border-top: 5px solid #FF6B35;
+      border-bottom: 5px solid #2563EB;
 
-      border-bottom:
-        5px solid #2563EB;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
 
-      border-left:
-        5px solid transparent;
-
-      border-right:
-        5px solid transparent;
-
-      animation:
-        rotation 1s linear infinite;
+      animation: rotation 1s linear infinite;
 
       filter:
         drop-shadow(
-          0 8px 18px
-          rgba(37, 99, 235, .22)
+          0 8px 18px rgba(37,99,235,.22)
         );
-
     }
-
 
     @keyframes rotation {
-
       to {
-        transform:
-          rotate(360deg);
+        transform: rotate(360deg);
       }
-
     }
-
-
-    /* ===============================
-       ข้อความ Loader
-       =============================== */
 
     .loading-message {
+      max-width: 90vw;
 
-      padding:
-        12px 18px;
+      padding: 12px 18px;
 
-      border-radius:
-        999px;
-
-      background:
-        rgba(255, 255, 255, .92);
-
-      box-shadow:
-        0 6px 18px
-        rgba(15, 23, 42, .08);
-
-      color:
-        #183A8F;
-
-      font-size:
-        clamp(
-          16px,
-          4vw,
-          21px
-        );
-
-      font-weight:
-        800;
-
-      text-align:
-        center;
-
-      line-height:
-        1.4;
-
-    }
-
-
-    /* ===============================
-       ลิงก์ด้านล่าง
-       =============================== */
-
-    .open-area {
-
-      margin-top:
-        8px;
-
-      text-align:
-        center;
-
-      opacity:
-        0;
-
-      transform:
-        translateY(8px);
-
-      transition:
-        opacity .35s ease,
-        transform .35s ease;
-
-      pointer-events:
-        none;
-
-    }
-
-
-    .open-area.show {
-
-      opacity:
-        1;
-
-      transform:
-        translateY(0);
-
-      pointer-events:
-        auto;
-
-    }
-
-
-    .open-text {
-
-      color:
-        #64748B;
-
-      font-size:
-        13px;
-
-      font-weight:
-        600;
-
-      margin-bottom:
-        8px;
-
-    }
-
-
-    .open-link {
-
-      display:
-        inline-flex;
-
-      align-items:
-        center;
-
-      justify-content:
-        center;
-
-      gap:
-        6px;
-
-      min-height:
-        44px;
-
-      padding:
-        10px 18px;
-
-      border-radius:
-        14px;
+      border-radius: 999px;
 
       background:
-        #FFFFFF;
-
-      border:
-        1px solid
-        #DCE6F7;
+        rgba(255,255,255,.92);
 
       box-shadow:
-        0 8px 24px
-        rgba(15, 23, 42, .08);
+        0 6px 18px rgba(15,23,42,.08);
 
-      color:
-        #183A8F;
+      color: #183A8F;
 
       font-size:
-        14px;
+        clamp(16px,4vw,21px);
 
-      font-weight:
-        800;
+      font-weight: 800;
 
-      text-decoration:
-        none;
+      text-align: center;
 
-      transition:
-        transform .15s ease,
-        box-shadow .15s ease;
-
+      line-height: 1.4;
     }
-
-
-    .open-link:active {
-
-      transform:
-        scale(.96);
-
-    }
-
-
-    /* ===============================
-       MOBILE
-       =============================== */
-
-    @media (max-width: 600px) {
-
-      .loader {
-
-        width:
-          58px;
-
-        height:
-          58px;
-
-      }
-
-
-      .loading-message {
-
-        max-width:
-          90vw;
-
-        font-size:
-          17px;
-
-      }
-
-
-      .open-link {
-
-        min-height:
-          48px;
-
-        padding:
-          11px 18px;
-
-      }
-
-    }
-
   </style>
-
 </head>
-
 
 <body>
 
+  <main class="loader-screen">
 
-  <div class="loader-screen">
+    <div class="loader"></div>
 
-
-    <!-- Loader -->
-    <div
-      class="loader">
-    </div>
-
-
-    <!-- ข้อความ -->
-    <div
-      class="loading-message">
-
+    <div class="loading-message">
       กำลังเข้าสู่เว็บไซต์ใบยืมออนไลน์..
-
     </div>
 
-
-    <!-- ==========================================
-         หลังโหลดเสร็จค่อยขึ้นลิงก์
-         ========================================== -->
-
-    <div
-      id="openArea"
-      class="open-area">
-
-
-      <div
-        class="open-text">
-
-        โปรดคลิกที่ลิงก์ด้านล่างเพื่อเข้าสู่ระบบ
-
-      </div>
-
-
-      <a
-        id="openSystemLink"
-        class="open-link"
-
-        href="https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec?kmsLauncher=1"
-
-        target="_blank"
-
-        rel="noopener">
-
-        เปิดเว็บไซต์ใบยืมออนไลน์
-        <span>›</span>
-
-      </a>
-
-
-    </div>
-
-
-  </div>
-
-
+  </main>
 
   <script>
+    const GAS_WEB_APP_URL =
+      "https://script.google.com/macros/s/AKfycbzZF6SI1BU1xUiwgOYBPLtsNBtAeh8aAOZ6JY9rp-uD54G2hySJ5vIQAzPw2BiXfGQ/exec";
 
-    /*
-     * =============================================
-     * สำคัญ
-     * GitHub จะไม่ Redirect ไป GAS อัตโนมัติ
-     * URL github.io จึงอยู่เหมือนเดิม
-     * =============================================
-     */
+    function isStandalone() {
+      try {
+        if (navigator.standalone === true) {
+          return true;
+        }
+      } catch(e) {}
 
+      try {
+        if (
+          window.matchMedia &&
+          window.matchMedia(
+            "(display-mode: standalone)"
+          ).matches
+        ) {
+          return true;
+        }
+      } catch(e) {}
 
-    const openArea =
-      document.getElementById(
-        "openArea"
-      );
+      return false;
+    }
 
+    function openSystem() {
+      const appMode =
+        isStandalone()
+          ? "1"
+          : "0";
 
-    /*
-     * แสดงข้อความให้กดลิงก์
-     * หลังประมาณ 1 วินาที
-     */
+      const url =
+        GAS_WEB_APP_URL +
+        "?kmsLauncher=1" +
+        "&kmsApp=" + appMode +
+        "&from=github" +
+        "&t=" + encodeURIComponent(Date.now());
 
+      // ✅ เปิดหน้าเดิม ไม่เปิด tab ใหม่
+      window.location.replace(url);
+    }
+
+    // ให้เห็น loader สั้น ๆ แล้วเข้า GAS อัตโนมัติ
     setTimeout(
-      function() {
-
-        openArea.classList.add(
-          "show"
-        );
-
-      },
-      1000
+      openSystem,
+      350
     );
-
-
   </script>
-
 
 </body>
 </html>
