@@ -18375,7 +18375,7 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
   if (window.__KMS_NO_VERSION_GATE_RELEASE_WATCHER_20260819__) return;
   window.__KMS_NO_VERSION_GATE_RELEASE_WATCHER_20260819__ = true;
 
-  var PAGE_RELEASE_VERSION = "6.0.0";
+  var PAGE_RELEASE_VERSION = ""; // ✅ Release จริงอ่านจาก Patch!A2
   var PAGE_MAIN_URL = "https://demokosin-cmd.github.io/kosin-borrow-app/";
   var ROUTER_MODE = String(window.__KMS_ROUTER_MODE__ || 'PUBLIC').toUpperCase();
 
@@ -18477,20 +18477,26 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
 
   function setReleaseDisplay_(){
     try{
-      var v = norm(PAGE_RELEASE_VERSION) || '-';
+      var v = norm(PAGE_RELEASE_VERSION);
+
+      // ยังไม่ได้อ่าน Patch!A2 -> รอ backend ก่อน
+      if(!v) return;
+
       var versionDisplay = q('version-display');
       if(versionDisplay) versionDisplay.textContent = v;
 
       var latest = q('latest-version');
       if(latest) latest.textContent = v;
 
-      try { localStorage.setItem('appVersion', v); } catch(e){}
+      try{
+        localStorage.setItem('appVersion', v);
+      }catch(e){}
 
       var status = q('status-message1');
       if(status){
         status.innerHTML =
           '<span style="color:#16a34a;font-weight:900;">🟢 ONLINE | เว็บไซต์ใช้งานได้ตามปกติ</span>' +
-          (v && v !== '-' ? '<span style="color:#94a3b8;font-weight:700;"> | Release ' + esc(v) + '</span>' : '');
+          '<span style="color:#94a3b8;font-weight:700;"> | Release ' + esc(v) + '</span>';
       }
     }catch(e){}
   }
@@ -19039,11 +19045,28 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
         // endpoint เดียวนี้ส่ง version/detail กลับมาแล้ว
         // ----------------------------------------------------
         var newVersion = norm(res.version);
+        var oldVersion = norm(PAGE_RELEASE_VERSION);
 
+        if(newVersion){
+          // ✅ Patch!A2 คือ Release หลัก
+          PAGE_RELEASE_VERSION = newVersion;
+          window.__KMS_PAGE_RELEASE_VERSION__ = newVersion;
+
+          try{
+            localStorage.setItem('appVersion', newVersion);
+          }catch(e){}
+
+          setReleaseDisplay_();
+        }
+
+        // ✅ ตอนเปิด/รีเฟรชหน้าใหม่ oldVersion ยังว่าง:
+        // รับ Patch!A2 เงียบ ๆ ไม่เด้ง Popup
+        //
+        // Popup จะแสดงเฉพาะกรณี Patch!A2 เปลี่ยนขณะหน้านี้เปิดค้างอยู่
         if(
           newVersion &&
-          norm(PAGE_RELEASE_VERSION) &&
-          newVersion !== norm(PAGE_RELEASE_VERSION)
+          oldVersion &&
+          newVersion !== oldVersion
         ){
           showReleaseUpdatePrompt_(res);
         }
@@ -21364,6 +21387,80 @@ window.kmsClearMaintenanceAdminSession_ = function(){
   window.__KMS_MAINTENANCE_TOKEN__ = '';
   window.__KMS_ADMIN_TEST_FROM_PASSWORD__ = false;
 };
+</script>
+
+
+<script id="kmsPatchA2ReleaseBootstrapMerged20260903">
+(function(){
+  "use strict";
+
+  if(window.__KMS_PATCH_A2_RELEASE_BOOTSTRAP_MERGED__) return;
+  window.__KMS_PATCH_A2_RELEASE_BOOTSTRAP_MERGED__ = true;
+
+  function clean_(v){
+    return String(v == null ? "" : v).trim().replace(/^V/i,"");
+  }
+
+  function paint_(v){
+    v = clean_(v);
+    if(!v) return;
+
+    PAGE_RELEASE_VERSION = v;
+    window.__KMS_PAGE_RELEASE_VERSION__ = v;
+
+    try{
+      localStorage.setItem("appVersion", v);
+    }catch(e){}
+
+    var a = document.getElementById("version-display");
+    if(a) a.textContent = v;
+
+    var b = document.getElementById("latest-version");
+    if(b) b.textContent = v;
+
+    var s = document.getElementById("status-message1");
+    if(s){
+      s.innerHTML =
+        '<span style="color:#16a34a;font-weight:900;">🟢 ONLINE | เว็บไซต์ใช้งานได้ตามปกติ</span>' +
+        '<span style="color:#94a3b8;font-weight:700;"> | Release ' +
+        v.replace(/[&<>"']/g,"") +
+        '</span>';
+    }
+  }
+
+  function load_(){
+    if(
+      !window.google ||
+      !google.script ||
+      !google.script.run
+    ){
+      setTimeout(load_, 200);
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler(function(res){
+        if(!res) return;
+        paint_(res.version || res.sheetVersion || "");
+      })
+      .withFailureHandler(function(err){
+        console.warn("Patch!A2 bootstrap failed", err);
+      })
+      .getLatestPatchFast("", "", "");
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener(
+      "DOMContentLoaded",
+      function(){
+        setTimeout(load_, 50);
+      },
+      {once:true}
+    );
+  }else{
+    setTimeout(load_, 50);
+  }
+})();
 </script>
 
 </body>
