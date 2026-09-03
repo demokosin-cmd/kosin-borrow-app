@@ -18406,6 +18406,23 @@ window.__KMS_EMAIL_FROM_SHEET_ONLY_20260627__ = true;
 
   function norm(v){ return String(v == null ? '' : v).trim(); }
 
+  // ✅ Setter กลาง: ให้โค้ดนอก IIFE อัปเดต Release ภายใน watcher ได้
+  window.kmsApplyPatchReleaseVersion_ = function(v){
+    v = norm(v);
+    if(!v) return;
+
+    PAGE_RELEASE_VERSION = v;
+    window.__KMS_PAGE_RELEASE_VERSION__ = v;
+
+    try{
+      localStorage.setItem('appVersion', v);
+    }catch(e){}
+
+    try{
+      setReleaseDisplay_();
+    }catch(e){}
+  };
+
   // ✅ กลับหน้า Web App จริง ไม่ reload iframe ภายในของ Apps Script
   function goMainUrl_(url){
     var target = "https://demokosin-cmd.github.io/kosin-borrow-app/";
@@ -21405,12 +21422,17 @@ window.kmsClearMaintenanceAdminSession_ = function(){
     v = clean_(v);
     if(!v) return;
 
-    PAGE_RELEASE_VERSION = v;
-    window.__KMS_PAGE_RELEASE_VERSION__ = v;
+    // PAGE_RELEASE_VERSION อยู่ภายใน IIFE ของ release watcher
+    // จึงห้ามอ้างตรงจาก script นี้
+    if(typeof window.kmsApplyPatchReleaseVersion_ === "function"){
+      window.kmsApplyPatchReleaseVersion_(v);
+    }else{
+      window.__KMS_PAGE_RELEASE_VERSION__ = v;
 
-    try{
-      localStorage.setItem("appVersion", v);
-    }catch(e){}
+      try{
+        localStorage.setItem("appVersion", v);
+      }catch(e){}
+    }
 
     var a = document.getElementById("version-display");
     if(a) a.textContent = v;
